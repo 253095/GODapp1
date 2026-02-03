@@ -1,1 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>気分で観光地おすすめマップ</title>
 
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    body { font-family: sans-serif; }
+    #map { height: 400px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>今の気分を選んでください</h2>
+
+<select id="moodSelect" onchange="updatePlaces()">
+  <option value="">-- 気分を選択 --</option>
+  <option value="relax">癒されたい</option>
+  <option value="nature">自然を感じたい</option>
+  <option value="lively">にぎやかに楽しみたい</option>
+</select>
+
+<h3>おすすめ観光地</h3>
+<select id="placeSelect" onchange="showPlace()">
+  <option value="">-- 観光地を選択 --</option>
+</select>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  // 地図初期化
+  const map = L.map('map').setView([35.5, 137.5], 6);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  let marker;
+
+  // 観光地データ
+  const places = {
+    onsen: {
+      name: "松葉川温泉",
+      lat: 33.31304043704814,
+      lng:  133.07147099132342,
+      mood: "relax",
+  
+    },
+    yufuin: {
+      name: "由布院",
+      lat: 33.2581,
+      lng: 131.3080,
+      mood: "relax"
+    },
+    arashiyama: {
+      name: "嵐山",
+      lat: 35.0094,
+      lng: 135.6668,
+      mood: "nature"
+    },
+    shirakawagou:{
+      name: "白川郷",
+      lat: 36.258030258464835, 
+      lng: 136.9062511414251,
+      mood: "nature"
+    },
+    shirakami: {
+      name: "白神山地",
+      lat: 40.5500,
+      lng: 140.0500,
+      mood: "nature"
+    },
+    hirome: {
+      name: "ひろめ市場",
+      lat: 33.56026796011568,
+      lng:  133.53615157387472,
+      mood: "lively"
+    },
+    shibuya: {
+      name: "渋谷",
+      lat: 35.6595,
+      lng: 139.7005,
+      mood: "lively"
+    }
+  };
+
+  // 気分を選んだら候補を更新
+  function updatePlaces() {
+    const mood = document.getElementById("moodSelect").value;
+    const placeSelect = document.getElementById("placeSelect");
+
+    placeSelect.innerHTML = '<option value="">-- 観光地を選択 --</option>';
+
+    for (const key in places) {
+      if (places[key].mood === mood) {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = places[key].name;
+        placeSelect.appendChild(option);
+      }
+    }
+  }
+
+  // 観光地を選んだら地図表示
+  function showPlace() {
+    const key = document.getElementById("placeSelect").value;
+    if (!key) return;
+
+    const place = places[key];
+
+    if (marker) {
+      map.removeLayer(marker);
+    }
+
+    map.setView([place.lat, place.lng], 13);
+
+    marker = L.marker([place.lat, place.lng])
+      .addTo(map)
+      .bindPopup(place.name)
+      .openPopup();
+  }
+  
+</script>
+</body>
+</html>
